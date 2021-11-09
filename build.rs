@@ -62,6 +62,23 @@ fn build() -> io::Result<()> {
 	Ok(())
 }
 
+#[cfg(target_os = "freebsd")]
+fn build() -> io::Result<()> {
+	let mut build = cc::Build::new();
+
+	build.file(source().join("libusb/hid.c"));
+	build.include(source().join("hidapi"));
+	build.static_flag(true);
+
+	for path in pkg_config::find_library("libusb-1.0").unwrap().include_paths {
+		build.include(path.to_str().unwrap());
+	}
+
+	build.compile("libhidapi.a");
+
+	Ok(())
+}
+
 #[cfg(target_os = "macos")]
 fn build() -> io::Result<()> {
 	let mut build = cc::Build::new();
